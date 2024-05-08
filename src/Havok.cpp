@@ -2,7 +2,6 @@
 
 #include "Offsets.h"
 
-RE::hkMemoryRouter& hkGetMemoryRouter()
-{
-	return *(RE::hkMemoryRouter*)(uintptr_t)TlsGetValue(*g_dwTlsIndex);
+RE::hkMemoryRouter& hkGetMemoryRouter(){
+	return *reinterpret_cast<RE::hkMemoryRouter*>(reinterpret_cast<uintptr_t>(TlsGetValue(*g_dwTlsIndex)));
 }

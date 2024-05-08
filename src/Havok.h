@@ -1,21 +1,17 @@
 #pragma once
 
-namespace RE
-{
-	class hkpConvexVerticesShape : public hkpConvexShape
-	{
+namespace RE {
+	class hkpConvexVerticesShape : public hkpConvexShape {
 	public:
 		inline static constexpr auto RTTI = RTTI_hkpConvexVerticesShape;
 
-		struct FourVectors
-		{
+		struct FourVectors {
 			hkVector4 x;
 			hkVector4 y;
 			hkVector4 z;
 		};
 
-		struct BuildConfig
-		{
+		struct BuildConfig {
 			bool createConnectivity;
 			bool shrinkByConvexRadius;
 			bool useOptimizedShrinking;
@@ -53,22 +49,19 @@ namespace RE
 		int numVertices;
 		int striding;
 
-		inline void set(const hkArrayBase<hkVector4>& a_vertices)
-		{
+		inline void set(const hkArrayBase<hkVector4>& a_vertices) {
 			set(a_vertices.begin(), a_vertices.size());
 		}
 
 		template <typename T>
-		inline void set(const T* a_vertices, int a_numVertices)
-		{
+		inline void set(const T* a_vertices, int a_numVertices) {
 			vertices = (const float*)a_vertices;
 			numVertices = a_numVertices;
 			striding = sizeof(T);
 		}
 	};
 
-	class hkMemoryRouter
-	{
+	class hkMemoryRouter {
 	public:
 		uint64_t unk00;             // 00
 		uint64_t unk08;             // 08
@@ -88,8 +81,7 @@ namespace RE
 	};
 	static_assert(offsetof(hkMemoryRouter, heap) == 0x58);
 
-	class bhkCharacterControllerCinfo
-	{
+	class bhkCharacterControllerCinfo {
 	public:
 		inline static constexpr auto RTTI = RTTI_bhkCharacterControllerCinfo;
 
@@ -129,9 +121,7 @@ namespace RE
 	};
 	static_assert(sizeof(bhkCharacterControllerCinfo) == 0xB0);
 
-	class hkpCharacterRigidBodyListener : public hkReferencedObject
-	{
-	};
+	class hkpCharacterRigidBodyListener : public hkReferencedObject{};
 
 	class hkpCharacterRigidBody :
 		public hkReferencedObject,  // 00
@@ -141,14 +131,12 @@ namespace RE
 	public:
 		inline static constexpr auto RTTI = RTTI_hkpCharacterRigidBody;
 
-		struct SupportInfo
-		{
+		struct SupportInfo {
 			hkContactPoint point;
 			hkpRigidBody* rigidBody;
 		};
 
-		struct VertPointInfo
-		{
+		struct VertPointInfo {
 			hkContactPoint vertPoint;
 			hkpSimpleConstraintContactMgr* mgr;
 		};
@@ -182,8 +170,7 @@ namespace RE
 	};
 	static_assert(sizeof(hkpCharacterRigidBody) == 0x90);
 
-	class bhkCharacterRigidBody : public bhkSerializable
-	{
+	class bhkCharacterRigidBody : public bhkSerializable {
 	public:
 		inline static constexpr auto RTTI = RTTI_bhkCharacterRigidBody;
 		inline static auto Ni_RTTI = NiRTTI_bhkCharacterRigidBody;
@@ -219,4 +206,6 @@ namespace RE
 }
 
 RE::hkMemoryRouter& hkGetMemoryRouter();
-inline void* hkHeapAlloc(int numBytes) { return hkGetMemoryRouter().heap->BlockAlloc(numBytes); }
+inline void* hkHeapAlloc(int numBytes) { 
+	return hkGetMemoryRouter().heap->BlockAlloc(numBytes);
+}

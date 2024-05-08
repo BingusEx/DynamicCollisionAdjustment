@@ -1,15 +1,13 @@
 #pragma once
 #include "TrueHUDAPI.h"
 
-enum class DebugDrawMode : std::uint32_t
-{
+enum class DebugDrawMode : std::uint32_t {
 	kNone = 0,
 	kAdjusted = 1,
 	kAll = 2
 };
 
-struct Settings
-{
+struct Settings {
 	static void Initialize();
 	static void ReadSettings();
 	static void OnPostLoadGame();

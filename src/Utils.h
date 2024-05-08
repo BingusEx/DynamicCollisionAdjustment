@@ -12,15 +12,6 @@ namespace Utils
 		}
 		return ret;
 	}
-	
-	[[nodiscard]] inline RE::hkVector4 NiPointToHkVector(const RE::NiPoint3& pt, bool bConvertScale = false) 
-	{
-		RE::hkVector4 ret = { pt.x, pt.y, pt.z, 0 };
-		if (bConvertScale) {
-			ret = ret * *g_worldScale;
-		}
-		return ret;
-	}
 
 	inline RE::NiPoint2 Vec2Rotate(const RE::NiPoint2& vec, float angle)
 	{
@@ -166,4 +157,128 @@ namespace Utils
 
 	void ToggleCharacterBumper(RE::Actor* a_actor, bool a_bEnable);
 
+	//TODO All of this should really be an API call into th gts dll..
+
+	[[nodiscard]] RE::hkVector4 GetBoneQuad(const RE::Actor* a_actor, const char* a_boneStr, bool a_invert, bool a_worldtranslate);
+
+	[[nodiscard]] RE::NiAVObject* FindBoneNode(const RE::Actor* a_actorptr, std::string_view a_nodeName, bool a_isFirstPerson);
+
+	[[nodiscard]] inline float soft_power(const float x, const float k, const float n, const float s, const float o, const float a)
+	{
+		return pow(1.0f + pow(k * (x), n * s), 1.0f / s) / pow(1.0f + pow(k * o, n * s), 1.0f / s) + a;
+	}
+
+	[[nodiscard]] inline float soft_core(const float x, const float k, const float n, const float s, const float o, const float a)
+	{
+		return 1.0f / soft_power(x, k, n, s, o, 0.0) + a;
+	}
+
+	[[nodiscard]] inline RE::NiPoint3 GetNiPoint3(RE::hkVector4 a_hkVector4)
+	{
+		float quad[4];
+		_mm_store_ps(quad, a_hkVector4.quad);
+		return RE::NiPoint3{ quad[0], quad[1], quad[2] };
+	}
+
+	[[nodiscard]] inline float Remap(const float a_oldValue, const float a_oldMin, const float a_oldMax, const float a_newMin, const float a_newMax)
+	{
+		return (((a_oldValue - a_oldMin) * (a_newMax - a_newMin)) / (a_oldMax - a_oldMin)) + a_newMin;
+	}
+
+	[[nodiscard]] inline float GetRefScale(RE::Actor* actor)
+	{
+		// This function reports same values as GetScale() in the console, so it is a value from SetScale() command
+		return static_cast<float>(actor->GetReferenceRuntimeData().refScale) / 100.0F;
+	}
+
+	[[nodiscard]] inline float GetModelScale(const RE::Actor* a_actor)
+	{
+		if (!a_actor)
+			return 1.0;
+
+		if (!a_actor->Is3DLoaded()) {
+			return 1.0;
+		}
+
+		if (const auto model = a_actor->Get3D(false)) {
+			return model->local.scale;
+		}
+
+		if (const auto first_model = a_actor->Get3D(true)) {
+			return first_model->local.scale;
+		}
+
+		return 1.0;
+	}
+
+	[[nodiscard]] inline float GetNodeScale(const RE::Actor* a_actor, const std::string_view a_boneName)
+	{
+		if (!a_actor)
+			return 1.0f;
+
+		if (const auto Node = FindBoneNode(a_actor, a_boneName, false)) {
+			return Node->local.scale;
+		}
+		if (const auto FPNode = FindBoneNode(a_actor, a_boneName, true)) {
+			return FPNode->local.scale;
+		}
+		return 1.0;
+	}
+
+	[[nodiscard]] inline RE::hkVector4 NiPointToHkVector(const RE::NiPoint3& a_point, bool a_convertScale = false)
+	{
+		RE::hkVector4 ret = { a_point.x, a_point.y, a_point.z, 0 };
+		if (a_convertScale) {
+			ret = ret * *g_worldScale;
+			logger::trace("(NiPointToHKVector) Worldscale: {} Resulting Output: X:{}, Y:{}, Z:{},", *g_worldScale, ret.quad.m128_f32[0], ret.quad.m128_f32[1], ret.quad.m128_f32[2]);
+		}
+		return ret;
+	}
+
+	[[nodiscard]] inline float GetScale(const RE::Actor* a_actor)
+	{
+		if (!a_actor)
+			return 1.f;
+
+		float TargetScale = 1.f;
+		TargetScale *= GetModelScale(a_actor);                    //Model scale, Scaling done by game
+		TargetScale *= GetNodeScale(a_actor, "NPC");              // NPC bone, Racemenu uses this.
+		TargetScale *= GetNodeScale(a_actor, "NPC Root [Root]");  //Child bone of "NPC" some other mods scale this bone instead
+
+		if (TargetScale < 0.15f)
+			TargetScale = 0.15f;
+		if (TargetScale > 250.f)
+			TargetScale = 250.f;
+		return TargetScale;
+	}
+
+	[[nodiscard]] inline bool FloatsEqual(const float a, const float b)
+	{
+		constexpr float epsilon = std::numeric_limits<float>::epsilon();
+		return std::abs(a - b) < epsilon;
+	}
+
+	[[nodiscard]] inline bool FloatsEqualDelta(const float a, const float b, const float delta)
+	{
+		//constexpr float epsilon = std::numeric_limits<float>::epsilon();
+		return std::abs(a - b) < delta;
+	}
+
+	[[nodiscard]] inline RE::hkVector4 GetHeadQuad(const RE::Actor* ActorPtr, const float CorrectionScale)
+	{
+		RE::hkVector4 Correction;
+		Correction.quad.m128_f32[2] = (CorrectionScale * 0.32f) - 1.f;
+		return GetBoneQuad(ActorPtr, "NPC Head [Head]", false,true) + Correction;
+	}
+
+	[[nodiscard]] inline RE::hkVector4 GetRootQuad(const RE::Actor* ActorPtr)
+	{
+		return GetBoneQuad(ActorPtr, "NPC Root [Root]", true, true);
+	}
+
+	// Get The needed offset for a spheres ground point
+	[[nodiscard]] inline float SphereOffset(const float Original, const float Scaled)
+	{
+		return -Original + Scaled;
+	}
 }

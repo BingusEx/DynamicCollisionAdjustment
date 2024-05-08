@@ -29,7 +29,6 @@ namespace Hooks
 		if (actor) {
 			AdjustmentHandler::GetSingleton()->ActorSneakStateChanged(actor->GetHandle(), true);
 		}
-		
 		return ret;
 	}
 
@@ -41,7 +40,6 @@ namespace Hooks
 		if (actor) {
 			AdjustmentHandler::GetSingleton()->ActorSneakStateChanged(actor->GetHandle(), false);
 		}
-
 		return ret;
 	}
 
@@ -50,6 +48,7 @@ namespace Hooks
 		auto playerCharacter = RE::PlayerCharacter::GetSingleton();
 		if (playerCharacter && playerCharacter->IsSneaking()) {
 			if (!AdjustmentHandler::CheckEnoughSpaceToStand(playerCharacter->GetHandle())) {
+				RE::DebugNotification("There is not enough space for me to stand!");
 				return;
 			}
 		}
@@ -57,24 +56,15 @@ namespace Hooks
 		_ProcessButton(a_this, a_event, a_data);
 	}
 
-	/*bool SneakHooks::CanProcess(RE::SneakHandler* a_this, RE::InputEvent* a_event)
-	{
-		auto playerCharacter = RE::PlayerCharacter::GetSingleton();
-		
-		if (playerCharacter && playerCharacter->IsSneaking()) {
-			if (!AdjustmentHandler::CheckEnoughSpaceToStand(playerCharacter->GetHandle())) {
-				return false;
-			}
-		}
-			
-		return _CanProcess(a_this, a_event);
-	}*/
-
 	void MainUpdateHook::Nullsub()
 	{
-		_Nullsub();
 
-		AdjustmentHandler::GetSingleton()->DrawVerts();
+
+
+		_Nullsub();
+		AdjustmentHandler::GetSingleton()->DebugDraw();
+		AdjustmentHandler::GetSingleton()->Update();
+
 	}
 
 	void CharControllerHooks::bhkCharacterController_dtor_Proxy(RE::bhkCharProxyController* a_this)

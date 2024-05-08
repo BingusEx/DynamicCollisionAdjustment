@@ -1,8 +1,7 @@
 #include "Settings.h"
 #include <Simpleini.h>
 
-void Settings::Initialize()
-{
+void Settings::Initialize() {
 	logger::info("Initializing...");
 
 	auto dataHandler = RE::TESDataHandler::GetSingleton();
@@ -14,8 +13,7 @@ void Settings::Initialize()
 	logger::info("...success");
 }
 
-void Settings::ReadSettings()
-{
+void Settings::ReadSettings() {
 	constexpr auto path = L"Data/MCM/Settings/DynamicCollisionAdjustment.ini";
 
 	logger::info("Reading MCM .ini...");
@@ -40,28 +38,24 @@ void Settings::ReadSettings()
 	logger::info("...success");
 }
 
-void Settings::OnPostLoadGame()
-{
+void Settings::OnPostLoadGame() {
 	RequestAPIs();
 	UpdateGlobals();
 }
 
-void Settings::UpdateGlobals()
-{
+void Settings::UpdateGlobals() {
 	if (glob_trueHUD) {
 		glob_trueHUD->value = g_trueHUD != nullptr ? 1.f : 0.f;
 	}
 }
 
-void Settings::RequestAPIs()
-{
+void Settings::RequestAPIs() {
 	if (!g_trueHUD) {
 		Settings::g_trueHUD = reinterpret_cast<TRUEHUD_API::IVTrueHUD4*>(TRUEHUD_API::RequestPluginAPI(TRUEHUD_API::InterfaceVersion::V4));
 	}
 }
 
-void Settings::ReadBoolSetting(CSimpleIniA& a_ini, const char* a_sectionName, const char* a_settingName, bool& a_setting)
-{
+void Settings::ReadBoolSetting(CSimpleIniA& a_ini, const char* a_sectionName, const char* a_settingName, bool& a_setting) {
 	const char* bFound = nullptr;
 	bFound = a_ini.GetValue(a_sectionName, a_settingName);
 	if (bFound) {
@@ -69,8 +63,7 @@ void Settings::ReadBoolSetting(CSimpleIniA& a_ini, const char* a_sectionName, co
 	}
 }
 
-void Settings::ReadFloatSetting(CSimpleIniA& a_ini, const char* a_sectionName, const char* a_settingName, float& a_setting)
-{
+void Settings::ReadFloatSetting(CSimpleIniA& a_ini, const char* a_sectionName, const char* a_settingName, float& a_setting) {
 	const char* bFound = nullptr;
 	bFound = a_ini.GetValue(a_sectionName, a_settingName);
 	if (bFound) {
@@ -78,8 +71,7 @@ void Settings::ReadFloatSetting(CSimpleIniA& a_ini, const char* a_sectionName, c
 	}
 }
 
-void Settings::ReadUInt32Setting(CSimpleIniA& a_ini, const char* a_sectionName, const char* a_settingName, uint32_t& a_setting)
-{
+void Settings::ReadUInt32Setting(CSimpleIniA& a_ini, const char* a_sectionName, const char* a_settingName, uint32_t& a_setting) {
 	const char* bFound = nullptr;
 	bFound = a_ini.GetValue(a_sectionName, a_settingName);
 	if (bFound) {

@@ -126,6 +126,5 @@ namespace Hooks
 		static inline REL::Relocation<decltype(SetWantedState6C)> _SetWantedState6C;
 	};
 
-
 	void Install();
 }
