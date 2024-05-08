@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.22)
 
 project(
-	DynamicCollisionAdjustment
-	VERSION 1.1.1
+	DynamicCollisionAdjustment_GTSMod
+	VERSION 2.0.0
 	LANGUAGES CXX
 )
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
