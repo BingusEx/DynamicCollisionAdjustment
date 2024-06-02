@@ -1061,7 +1061,7 @@ void AdjustmentHandler::ControllerData::AdjustConvexShape() {
 	NiPointer<bhkWorld> World = NiPointer(Cell->GetbhkWorld());
 	if (!World) return;
 
-	const float SwimmingMult = CharacterState == hkpCharacterStateType::kSwimming ? Settings::fSwimmingControllerShapeRadiusMultiplier : 1.f;
+	//const float SwimmingMult = CharacterState == hkpCharacterStateType::kSwimming ? Settings::fSwimmingControllerShapeRadiusMultiplier : 1.f;
 
 	hkpListShape* ListShape;
 	hkpCharacterProxy* CharProxy;
@@ -1114,7 +1114,7 @@ void AdjustmentHandler::ControllerData::AdjustConvexShape() {
 			NiPoint3 newVert = vert;
 			newVert.z = 0;
 			newVert.Unitize();
-			newVert *= OriginalConvexRadius * ActorScale * SwimmingMult;
+			newVert *= OriginalConvexRadius * ActorScale; //* SwimmingMult;
 			newVert.z = vert.z;
 
 			NewVerts[i] = Utils::NiPointToHkVector(newVert);
