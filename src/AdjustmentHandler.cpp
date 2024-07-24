@@ -1325,9 +1325,16 @@ void AdjustmentHandler::CharacterControllerUpdate(bhkCharacterController* Contro
 	ControllerData->ActorScale = CurrentScale; 
 
 	//The Player And Followers Get Realtime ConvexShape Update Based On Bone Position
-	if (ActorPtr->formID == 0x14 || ActorPtr->IsPlayerTeammate()) {
+	if (ActorPtr->formID == 0x14) {
 		ControllerData->AdjustConvexShape();
 		ControllerData->AdjustProxyCapsule();
+		return;
+	}
+	if (ActorPtr->IsPlayerTeammate()) {
+		if (CurrentScale > 1.05f)
+			ControllerData->ActorScale = 1.05f;
+		ControllerData->AdjustConvexShapeSimple();
+		ControllerData->AdjustProxyCapsuleSimple();
 		return;
 	}
 	//Non Creatures NPC's Get A Simpeler Scale Based One. Only Update If Scale Unchanged
