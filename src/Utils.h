@@ -247,8 +247,9 @@ namespace Utils
 
 		if (TargetScale < 0.15f)
 			TargetScale = 0.15f;
-		if (TargetScale > 250.f)
-			TargetScale = 250.f;
+		//Stop scaling past 20 as a safety measure. If an npc gets stuck due to colission it will murder the framerate.
+		if (TargetScale > 20)
+			TargetScale = 20;
 		return TargetScale;
 	}
 

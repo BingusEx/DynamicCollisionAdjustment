@@ -77,14 +77,26 @@ namespace Utils
 		// Game lookup failed we try and find it manually
 		std::deque<RE::NiAVObject*> queue;
 		queue.push_back(model);
+		int RecursionCheck = 512;
 
 		while (!queue.empty()) {
 			const auto currentnode = queue.front();
 			queue.pop_front();
+			int RecursionCheckFor = 512;
+			if (RecursionCheck-- <= 0) {
+				//MessageBoxA(NULL, "RECURSION BUG IN FindBoneNode()", "DynamicColisionAdjustment", 0);
+				queue.clear();
+				return nullptr;
+			}
 			try {
 				if (currentnode) {
 					if (const auto ninode = currentnode->AsNode()) {
 						for (const auto& child : ninode->GetChildren()) {
+							if (RecursionCheckFor-- <= 0) {
+								//MessageBoxA(NULL, "RECURSION BUG IN FindBoneNode() For Loop", "DynamicColisionAdjustment", 0);
+								queue.clear();
+								return nullptr;
+							}
 							// Bredth first search
 							queue.push_back(child.get());
 							// Depth first search
@@ -98,15 +110,23 @@ namespace Utils
 				}
 			} catch (const std::overflow_error& e) {
 				SKSE::log::warn("Find Bone Overflow: {}", e.what());
+				//MessageBoxA(NULL, "Overflow Exception in FindBoneNode()", "DynamicColisionAdjustment", 0);
+				return nullptr;
 			}  // this executes if f() throws std::overflow_error (same type rule)
 			catch (const std::runtime_error& e) {
 				SKSE::log::warn("Find Bone Underflow: {}", e.what());
+				//MessageBoxA(NULL, "Underflow Exception in FindBoneNode()", "DynamicColisionAdjustment", 0);
+				return nullptr;
 			}  // this executes if f() throws std::underflow_error (base class rule)
 			catch (const std::exception& e) {
 				SKSE::log::warn("Find Bone Exception: {}", e.what());
+				//MessageBoxA(NULL, "STD Exception in FindBoneNode()", "DynamicColisionAdjustment", 0);
+				return nullptr;
 			}  // this executes if f() throws std::logic_error (base class rule)
 			catch (...) {
 				SKSE::log::warn("Find Bone Exception Other");
+				//MessageBoxA(NULL, "Other Exception in FindBoneNode()", "DynamicColisionAdjustment", 0);
+				return nullptr;
 			}
 		}
 

@@ -42,7 +42,7 @@ namespace {
 
 		spdlog::set_default_logger(std::move(log));
 		spdlog::set_pattern("[%s%#]: [%^%L%$] %v"s);
-		logger::info("THIS IS A MODIFIED VERSION MADE FOR THE GIANTESS MOD.\r\nI SWEAR TO GOD IF YOU GO BOTHER ERSHIN WHILE USING THIS VERSION I WILL PERSONALLY COME TO YOUR HOUSE TO SLAP YOU.");
+		logger::info("THIS IS A MODIFIED VERSION MADE FOR THE GIANTESS (GTS) MOD.\r\nDO NOT CONTACT ERSHIN IF YOU HAVE ISSUES WITH THIS VERSION");
 	}
 }
 

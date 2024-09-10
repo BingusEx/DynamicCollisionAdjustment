@@ -262,7 +262,7 @@ void AdjustmentHandler::ControllerData::SetupProxyCapsule() {
 
 	//logger::info("Setup Controller");
 
-	BSReadLockGuard WorldLock(World->worldLock);
+	BSWriteLockGuard lock(World->worldLock);
 
 	//Setup Player
 	if(bhkCharProxyController* ProxyController = skyrim_cast<bhkCharProxyController*>(CharController)){
@@ -324,6 +324,8 @@ void AdjustmentHandler::ControllerData::AdjustProxyCapsule() {
 	if (!CharController->shapes[shapeIdx]) shapeIdx = 0;
 	if (!CharController->shapes[shapeIdx]) return;
 	if (IsCreature) return;
+
+	BSWriteLockGuard lock(World->worldLock);
 
 	//The Player as the ProxyController.
 	if(bhkCharProxyController* ProxyController = skyrim_cast<bhkCharProxyController*>(CharController)){
@@ -420,6 +422,8 @@ void AdjustmentHandler::ControllerData::AdjustProxyCapsuleSimple() {
 	if (!CharController->shapes[shapeIdx]) shapeIdx = 0;
 	if (!CharController->shapes[shapeIdx]) return;
 
+	BSWriteLockGuard lock(World->worldLock);
+
 	//NPC's Get the RigidBodyController.
 	bhkCharRigidBodyController* RigidBodyController = skyrim_cast<bhkCharRigidBodyController*>(CharController);
 	if (!RigidBodyController) return;
@@ -467,6 +471,8 @@ void AdjustmentHandler::ControllerData::AdjustProxyCapsuleCreature(){
 	int8_t shapeIdx = 1;
 	if (!CharController->shapes[shapeIdx]) shapeIdx = 0;
 	if (!CharController->shapes[shapeIdx]) return;
+
+	BSWriteLockGuard lock(World->worldLock);
 
 	//readShape(readShape, static_cast<hkpShape*>(bhkClone->referencedObject.get()));
 
@@ -650,11 +656,15 @@ void AdjustmentHandler::ControllerData::AdjustProxyCapsuleCreature_Hack(){
 	if (!CharController)
 		return;
 
+	BSWriteLockGuard lock(World->worldLock);
+
 	int8_t shapeIdx = 1;
 	if (!CharController->shapes[shapeIdx])
 		shapeIdx = 0;
 	if (!CharController->shapes[shapeIdx])
 		return;
+
+
 
 	//Setup NPC's
 	if (bhkCharRigidBodyController* RigidBodyController = skyrim_cast<bhkCharRigidBodyController*>(CharController)) {
@@ -1068,7 +1078,7 @@ void AdjustmentHandler::ControllerData::AdjustConvexShape() {
 	hkpConvexVerticesShape* ConvexShape;
 	hkpCharacterRigidBody* CharRigidBody;
 
-	//BSWriteLockGuard lock(World->worldLock);
+	BSWriteLockGuard lock(World->worldLock);
 	if (!GetConvexShape(CharController, CharProxy, CharRigidBody, ListShape, ConvexShape)) return;
 
 	std::vector<hkVector4> NewVerts = OriginalVerts;
@@ -1173,7 +1183,7 @@ void AdjustmentHandler::ControllerData::AdjustConvexShapeSimple(){
 			float heightMultTop = (sneakMult * swimmingHeightMult * ActorScale);
 			float radiusMult = ActorScale * swimmingRadiusMult;
 
-			//RE::BSWriteLockGuard lock(world->worldLock);
+			BSWriteLockGuard lock(world->worldLock);
 
 			if (GetConvexShape(CharController, proxy, rigidBody, listShape, collisionConvexVerticesShape)) {
 				std::vector<RE::hkVector4> newVerts = OriginalVerts;
@@ -1253,6 +1263,7 @@ void AdjustmentHandler::ControllerData::AdjustConvexShapeSimple(){
 
 //Update Sneak State
 void AdjustmentHandler::ActorSneakStateChanged(ActorHandle ActorHandle, bool Sneaking) {
+
 	if (std::shared_ptr<ControllerData> ControllerData = GetControllerData(ActorHandle)) {
 		ControllerData->Sneaking = Sneaking;
 	}
@@ -1297,11 +1308,10 @@ void AdjustmentHandler::Update() {
 
 	BSReadWriteLock Lock(World->worldLock);
 
-	Lock.LockForWrite();
 	ForEachController([&](std::shared_ptr<ControllerData> Entry) {
 		CharacterControllerUpdate(Entry->CharController);
 	});
-	Lock.UnlockForWrite();
+
 }
 
 void AdjustmentHandler::CharacterControllerUpdate(bhkCharacterController* Controller) {
@@ -1325,18 +1335,20 @@ void AdjustmentHandler::CharacterControllerUpdate(bhkCharacterController* Contro
 	ControllerData->ActorScale = CurrentScale; 
 
 	//The Player And Followers Get Realtime ConvexShape Update Based On Bone Position
-	if (ActorPtr->formID == 0x14) {
+	if (ActorPtr->formID == 0x14 || ActorPtr->IsPlayerTeammate()) {
 		ControllerData->AdjustConvexShape();
 		ControllerData->AdjustProxyCapsule();
 		return;
 	}
-	if (ActorPtr->IsPlayerTeammate()) {
-		if (CurrentScale > 1.05f)
-			ControllerData->ActorScale = 1.05f;
-		ControllerData->AdjustConvexShapeSimple();
-		ControllerData->AdjustProxyCapsuleSimple();
-		return;
-	}
+	//Revert this for the "public" release
+
+	//if (ActorPtr->IsPlayerTeammate()) {
+	//	if (CurrentScale > 1.05f)
+	//		ControllerData->ActorScale = 1.05f;
+	//	ControllerData->AdjustConvexShapeSimple();
+	//	ControllerData->AdjustProxyCapsuleSimple();
+	//	return;
+	//}
 	//Non Creatures NPC's Get A Simpeler Scale Based One. Only Update If Scale Unchanged
 	if(!ScaleUnchanged && !ControllerData->IsCreature) {
 		ControllerData->AdjustConvexShapeSimple();
@@ -1542,7 +1554,7 @@ bool AdjustmentHandler::CheckEnoughSpaceToStand(ActorHandle ActorHandle) {
 	RaycastInput.to = RayEnd;
 
 	{
-		//BSReadLockGuard lock(World->worldLock);
+		BSReadLockGuard lock(World->worldLock);
 		World->GetWorld1()->CastRay(RaycastInput, RaycastOutput);
 	}
 
