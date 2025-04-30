@@ -16,7 +16,7 @@ namespace Utils
 		a_cloningProcess.copyType = 1;
 		a_cloningProcess.appendChar = '$';
 
-		a_cloningProcess.unk68 = a_scale;
+		a_cloningProcess.scale = a_scale;
 	}
 
 	void ToggleCharacterBumper(RE::Actor* a_actor, bool a_bEnable)

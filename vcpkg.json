@@ -1,13 +1,19 @@
 {
-  "name": "dynamiccollisionadjustment",
-  "version": "1",
-  "dependencies": [
-    "fmt",
-    "rapidcsv",
-    "rsm-binary-io",
-    "simpleini",
-    "spdlog",
-    "xbyak",
-    "directxtk"
-  ]
+  "name": "dynamiccolissionadjustment",
+  "version-string": "2.0.1",
+  "description": "",
+  "features": {
+    "plugin": {
+      "description": "Build the SKSE plugin.",
+      "dependencies": [
+	    "xbyak",
+		"catch2",
+		"fmt",
+		"directxtk",
+		"rapidcsv",
+		"spdlog"
+      ]
+    }
+  },
+  "default-features": ["plugin"]
 }

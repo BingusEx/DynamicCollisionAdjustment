@@ -2,21 +2,22 @@
 #include "Papyrus.h"
 #include "Settings.h"
 
-void MessageHandler(SKSE::MessagingInterface::Message* a_msg) {
-	switch (a_msg->type) {
-		case SKSE::MessagingInterface::kDataLoaded:
-			Settings::Initialize();
-			Settings::ReadSettings();
-			Settings::RequestAPIs();
-			break;
-		case SKSE::MessagingInterface::kPostLoadGame:
-		case SKSE::MessagingInterface::kNewGame:
-			Settings::OnPostLoadGame();
-			break;
-	}
-}
-
 namespace {
+
+	void MessageHandler(SKSE::MessagingInterface::Message* a_msg) {
+		switch (a_msg->type) {
+			case SKSE::MessagingInterface::kDataLoaded:
+				Settings::Initialize();
+				Settings::ReadSettings();
+				Settings::RequestAPIs();
+				break;
+			case SKSE::MessagingInterface::kPostLoadGame:
+			case SKSE::MessagingInterface::kNewGame:
+				Settings::OnPostLoadGame();
+				break;
+		}
+	}
+
 	void InitializeLog() {
 		#ifndef NDEBUG
 			auto sink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
@@ -33,7 +34,7 @@ namespace {
 		#ifndef NDEBUG
 			const auto level = spdlog::level::trace;
 		#else
-			const auto level = spdlog::level::info;
+			constexpr auto level = spdlog::level::info;
 		#endif
 
 		auto log = std::make_shared<spdlog::logger>("global log"s, std::move(sink));
@@ -46,38 +47,8 @@ namespace {
 	}
 }
 
-extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info) {
-	a_info->infoVersion = SKSE::PluginInfo::kVersion;
-	a_info->name = Plugin::NAME.data();
-	a_info->version = Plugin::VERSION[0];
 
-	if (a_skse->IsEditor()) {
-		//logger::critical("Loaded in editor, marking as incompatible"sv);
-		return false;
-	}
-
-	const auto ver = a_skse->RuntimeVersion();
-	if (ver < SKSE::RUNTIME_SSE_1_5_39) {
-		logger::critical(FMT_STRING("Unsupported runtime version {}"), ver.string());
-		return false;
-	}
-
-	return true;
-}
-
-extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []() {
-	SKSE::PluginVersionData v;
-
-	v.PluginVersion(Plugin::VERSION);
-	v.PluginName(Plugin::NAME);
-	v.AuthorName("Ershin, Modified by Arial for the GTS Mod");
-	v.UsesAddressLibrary(true);
-	v.CompatibleVersions({ SKSE::RUNTIME_SSE_LATEST });
-	v.HasNoStructUse(true);
-	return v;
-}();
-
-extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_skse){
+SKSEPluginLoad(const LoadInterface* a_skse) {
 	#ifndef NDEBUG
 		//while (!IsDebuggerPresent()) {
 		//	Sleep(100);
@@ -85,7 +56,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 	#endif
 	InitializeLog();
 
-	logger::info("{} v{}", "Dynamic Collision Adjustment GTSMOD", Plugin::VERSION.string());
+	logger::info("{} v{}", "Dynamic Collision Adjustment GTSMod", Plugin::VERSION.string());
 
 	SKSE::Init(a_skse);
 	SKSE::AllocTrampoline(1 << 8);
@@ -100,3 +71,12 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 
 	return true;
 }
+
+SKSEPluginInfo(
+	.Version = REL::Version{ 2, 0, 1, 0 },
+	.Name = "DynamicColisionAdjustment",
+	.Author = "Ershin, Modified by BingusEx for the GTS Mod",
+	.StructCompatibility = SKSE::StructCompatibility::Independent,
+	.RuntimeCompatibility = SKSE::VersionIndependence::AddressLibrary
+);
+

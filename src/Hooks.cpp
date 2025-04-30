@@ -19,7 +19,7 @@ namespace Hooks
 		logger::trace("...success");
 	}
 
-	static auto ptrOffset = REL::Module::get().version().compare(SKSE::RUNTIME_SSE_1_6_629) == std::strong_ordering::less ? -0xB8 : -0xC0;
+	const static auto ptrOffset = REL::Module::get().version().compare(SKSE::RUNTIME_SSE_1_6_629) == std::strong_ordering::less ? -0xB8 : -0xC0;
 
 	bool SneakHooks::AddMovementFlags(RE::ActorState* a_this, int16_t a_flag)
 	{
@@ -59,8 +59,6 @@ namespace Hooks
 	void MainUpdateHook::Nullsub()
 	{
 
-
-
 		_Nullsub();
 		AdjustmentHandler::GetSingleton()->DebugDraw();
 		AdjustmentHandler::GetSingleton()->Update();
@@ -91,7 +89,7 @@ namespace Hooks
 		uint64_t unk20;
 		RE::NiAVObject* object;
 
-		inline bool CheckFlags() {
+		inline bool CheckFlags() const {
 			return (((flags & 0x70000000) - 0x30000000) & 0xEFFFFFFF) == 0;
 		}
 	};

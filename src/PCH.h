@@ -16,6 +16,9 @@
 #pragma warning(pop)
 
 using namespace std::literals;
+using namespace RE;
+using namespace SKSE;
+using namespace REL;
 
 namespace logger = SKSE::log;
 

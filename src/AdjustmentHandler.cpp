@@ -1328,7 +1328,7 @@ void AdjustmentHandler::CharacterControllerUpdate(bhkCharacterController* Contro
 	if (!ActorPtr) return;
 
 	float CurrentScale = Utils::GetScale(ActorPtr);
-	bool ScaleUnchanged = Utils::FloatsEqual(CurrentScale, ControllerData->ActorScale);
+	// ScaleUnchanged = Utils::FloatsEqual(CurrentScale, ControllerData->ActorScale);
 	//bool ScaleUnchancedBigDelta = Utils::FloatsEqualDelta(ControllerData->OldActorScale, ControllerData->ActorScale, 0.1f);
 
 	//Update Scale
@@ -1350,7 +1350,7 @@ void AdjustmentHandler::CharacterControllerUpdate(bhkCharacterController* Contro
 	//	return;
 	//}
 	//Non Creatures NPC's Get A Simpeler Scale Based One. Only Update If Scale Unchanged
-	if(!ScaleUnchanged && !ControllerData->IsCreature) {
+	if(!ControllerData->IsCreature) {
 		ControllerData->AdjustConvexShapeSimple();
 		ControllerData->AdjustProxyCapsuleSimple();
 		return;
