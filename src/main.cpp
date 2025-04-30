@@ -37,7 +37,7 @@ namespace {
 			constexpr auto level = spdlog::level::info;
 		#endif
 
-		auto log = std::make_shared<spdlog::logger>("global log"s, std::move(sink));
+		auto log = std::make_shared<spdlog::logger>("global", std::move(sink));
 		log->set_level(level);
 		log->flush_on(level);
 
@@ -74,7 +74,7 @@ SKSEPluginLoad(const LoadInterface* a_skse) {
 
 SKSEPluginInfo(
 	.Version = REL::Version{ 2, 0, 1, 0 },
-	.Name = "DynamicColisionAdjustment",
+	.Name = Plugin::NAME,
 	.Author = "Ershin, Modified by BingusEx for the GTS Mod",
 	.StructCompatibility = SKSE::StructCompatibility::Independent,
 	.RuntimeCompatibility = SKSE::VersionIndependence::AddressLibrary
